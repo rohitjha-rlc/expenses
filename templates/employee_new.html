@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>New Expense Batch</h2>
+<form method="post" enctype="multipart/form-data" id="expense-form">
+  <input type="hidden" id="row_count" name="row_count" value="1" />
+  <table id="expense-table">
+    <thead>
+      <tr>
+        <th>Date</th><th>Description</th><th>Amount</th><th>Contract</th><th>Charge Code</th><th>Receipt</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr data-row="0">
+        <td><input type="date" name="items-0-date" required /></td>
+        <td><input type="text" name="items-0-description" required /></td>
+        <td><input type="number" step="0.01" name="items-0-amount" required /></td>
+        <td>
+          <select name="items-0-contract_id" required>
+            <option value="">--Select--</option>
+            {% for contract in contracts %}
+            <option value="{{ contract.id }}">{{ contract.contract_number }} - {{ contract.name }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <select name="items-0-charge_code_id" required>
+            <option value="">--Select--</option>
+            {% for code in codes %}
+            <option value="{{ code.id }}" data-contract="{{ code.contract_id }}">{{ code.code }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td><input type="file" name="items-0-receipt" required /></td>
+        <td><button type="button" onclick="removeRow(this)">Remove</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button type="button" onclick="addRow()">Add Row</button>
+  <button type="submit">Submit Batch</button>
+</form>
+
+<script>
+const tableBody = document.querySelector('#expense-table tbody');
+const rowCountInput = document.getElementById('row_count');
+
+function addRow() {
+  const idx = tableBody.querySelectorAll('tr').length;
+  const source = tableBody.querySelector('tr').cloneNode(true);
+  source.dataset.row = idx;
+
+  source.querySelectorAll('input, select').forEach(el => {
+    const newName = el.name.replace(/items-\d+-/, `items-${idx}-`);
+    el.name = newName;
+    if (el.type === 'file') {
+      el.value = '';
+    } else {
+      el.value = '';
+    }
+  });
+
+  tableBody.appendChild(source);
+  rowCountInput.value = tableBody.querySelectorAll('tr').length;
+}
+
+function removeRow(btn) {
+  if (tableBody.querySelectorAll('tr').length === 1) {
+    return;
+  }
+  btn.closest('tr').remove();
+  const rows = tableBody.querySelectorAll('tr');
+  rows.forEach((row, idx) => {
+    row.dataset.row = idx;
+    row.querySelectorAll('input, select').forEach(el => {
+      el.name = el.name.replace(/items-\d+-/, `items-${idx}-`);
+    });
+  });
+  rowCountInput.value = rows.length;
+}
+</script>
+{% endblock %}
