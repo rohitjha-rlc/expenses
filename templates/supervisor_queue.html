@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Supervisor Approval Queue</h2>
+<table>
+  <thead><tr><th>ID</th><th>Employee</th><th>Updated</th><th></th></tr></thead>
+  <tbody>
+  {% for b in batches %}
+  <tr>
+    <td>{{ b.id }}</td><td>{{ b.employee_name }}</td><td>{{ b.updated_at }}</td>
+    <td><a href="{{ url_for('batch_detail', batch_id=b.id) }}">Review</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="4">No items in supervisor queue.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

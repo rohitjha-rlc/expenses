@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Employee Batches</h2>
+<table>
+  <thead><tr><th>ID</th><th>Status</th><th>Manager</th><th>Submitted</th><th>Reason</th><th></th></tr></thead>
+  <tbody>
+  {% for b in batches %}
+  <tr>
+    <td>{{ b.id }}</td>
+    <td>{{ b.status }}</td>
+    <td>{{ b.manager_name }}</td>
+    <td>{{ b.submitted_at }}</td>
+    <td>{{ b.rejection_reason or '-' }}</td>
+    <td><a href="{{ url_for('batch_detail', batch_id=b.id) }}">Details</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6">No batches yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

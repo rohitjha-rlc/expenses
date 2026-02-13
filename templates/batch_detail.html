@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Batch #{{ batch.id }}</h2>
+<p>Status: <strong>{{ batch.status }}</strong></p>
+<p>Employee: {{ batch.employee_name }} | Manager: {{ batch.manager_name }} | Supervisor: {{ batch.supervisor_name }}</p>
+
+<table>
+  <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Contract</th><th>Charge Code</th><th>Receipt</th></tr></thead>
+  <tbody>
+  {% for i in items %}
+  <tr>
+    <td>{{ i.expense_date }}</td>
+    <td>{{ i.description }}</td>
+    <td>${{ '%.2f'|format(i.amount) }}</td>
+    <td>{{ i.contract_number }}</td>
+    <td>{{ i.charge_code }}</td>
+    <td><a href="{{ url_for('receipts', filename=i.receipt_path) }}" target="_blank">View</a></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if batch.status == 'SUBMITTED_PENDING_MANAGER' %}
+<section>
+  <h3>Manager Actions</h3>
+  <form method="post" action="{{ url_for('manager_approve', batch_id=batch.id) }}">
+    <input type="text" name="comment" placeholder="Optional approval note" />
+    <button type="submit">Approve</button>
+  </form>
+  <form method="post" action="{{ url_for('manager_reject', batch_id=batch.id) }}">
+    <input type="text" name="comment" placeholder="Required rejection reason" required />
+    <button type="submit">Reject</button>
+  </form>
+</section>
+{% endif %}
+
+{% if batch.status == 'PENDING_SUPERVISOR' %}
+<section>
+  <h3>Supervisor Actions</h3>
+  <form method="post" action="{{ url_for('supervisor_approve', batch_id=batch.id) }}">
+    <input type="text" name="comment" placeholder="Optional approval note" />
+    <button type="submit">Approve</button>
+  </form>
+  <form method="post" action="{{ url_for('supervisor_reject', batch_id=batch.id) }}">
+    <input type="text" name="comment" placeholder="Required rejection reason" required />
+    <button type="submit">Reject</button>
+  </form>
+</section>
+{% endif %}
+
+<h3>Approval History</h3>
+<ul>
+  {% for action in actions %}
+  <li>{{ action.acted_at }} - {{ action.actor_role }} {{ action.actor_name }}: {{ action.action }} {% if action.comment %}({{ action.comment }}){% endif %}</li>
+  {% else %}
+  <li>No actions yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
